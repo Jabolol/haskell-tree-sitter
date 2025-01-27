@@ -130,3 +130,15 @@ char *ts_node_string_p(TSNode *self) {
   assert(self != NULL);
   return ts_node_string(*self);
 }
+
+TSQuery *ts_query_new_p(const TSLanguage *language, const char *source, uint32_t length) {
+  uint32_t error_offset;
+  TSQueryError error_type;
+  TSQuery *query = ts_query_new(language, source, length, &error_offset, &error_type);
+  return query;
+}
+
+void ts_query_delete_p(TSQuery *query) {
+  assert(query != NULL);
+  ts_query_delete(query);
+}
