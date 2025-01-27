@@ -34,12 +34,12 @@ withQuery language source len action =
 
 -- | Execute a query and process the matched nodes with a callback function.
 -- The matched nodes array is automatically freed after the callback is executed.
-withQueryMatches :: Ptr Tree -> Ptr Query -> (Ptr Node -> IO a) -> IO a
+withQueryMatches :: Ptr Tree -> Ptr Query -> (Ptr Node -> Word32 -> IO a) -> IO a
 withQueryMatches tree query action = alloca $ \matchCountPtr -> 
   Exc.bracket
     (ts_query_matches_to_nodes tree query matchCountPtr)
     free
-    action
+    (\nodesPtr -> peek matchCountPtr >>= action nodesPtr)
 
 foreign import ccall unsafe "src/bridge.c ts_query_new_p" ts_query_new_p :: Ptr Language -> CString -> Word32 -> IO (Ptr Query)
 
