@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric, GeneralizedNewtypeDeriving, RankNTypes, ScopedTypeVariables #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
+{-# LANGUAGE RoleAnnotations #-}
 module TreeSitter.Node
 ( Node(..)
 , nodeStartPoint
@@ -52,6 +53,7 @@ newtype FieldId = FieldId { getFieldId :: Word16 }
 
 
 -- | 'Struct' is a strict 'Monad' with automatic alignment & advancing, & inferred type.
+type role Struct representational
 newtype Struct a = Struct { runStruct :: forall b . Ptr b -> IO (a, Ptr a) }
 
 evalStruct :: Struct a -> Ptr b -> IO a
