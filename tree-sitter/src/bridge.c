@@ -82,7 +82,6 @@ size_t sizeof_tstreecursor() {
   return sizeof(TSTreeCursor);
 }
 
-
 void ts_tree_cursor_new_p(TSNode *node, TSTreeCursor *outCursor) {
   assert(node != NULL);
   assert(outCursor != NULL);
@@ -104,7 +103,6 @@ bool ts_tree_cursor_current_node_p(const TSTreeCursor *cursor, Node *outNode) {
   }
   return false;
 }
-
 
 uint32_t ts_tree_cursor_copy_child_nodes(TSTreeCursor *cursor, Node *outChildNodes) {
   assert(cursor != NULL);
@@ -141,4 +139,71 @@ TSQuery *ts_query_new_p(const TSLanguage *language, const char *source, uint32_t
 void ts_query_delete_p(TSQuery *query) {
   assert(query != NULL);
   ts_query_delete(query);
+}
+
+TSQueryCursor *ts_query_cursor_new_p(void)
+{
+  return ts_query_cursor_new();
+}
+
+void ts_query_cursor_delete_p(TSQueryCursor *cursor)
+{
+  assert(cursor != NULL);
+  ts_query_cursor_delete(cursor);
+}
+
+void ts_query_cursor_exec_p(TSQueryCursor *cursor, const TSQuery *query, TSNode *node)
+{
+  assert(node != NULL);
+  ts_query_cursor_exec(cursor, query, *node);
+}
+
+#define INITIAL_NODE_CAPACITY 128
+Node *ts_query_matches_to_nodes(TSTree *tree, TSQuery *query, size_t *outCount) {
+  assert(tree != NULL);
+  assert(query != NULL);
+  assert(outCount != NULL);
+
+  TSNode root = ts_tree_root_node(tree);
+
+  TSQueryCursor *cursor = ts_query_cursor_new();
+  ts_query_cursor_exec(cursor, query, root);
+
+  size_t capacity = INITIAL_NODE_CAPACITY;
+  Node *nodes = malloc(capacity * sizeof(Node));
+  if (!nodes) {
+    perror("Failed to allocate memory for nodes");
+    ts_query_cursor_delete(cursor);
+    return NULL;
+  }
+
+  size_t count = 0;
+
+  TSQueryMatch match;
+  while (ts_query_cursor_next_match(cursor, &match)) {
+    for (uint32_t i = 0; i < match.capture_count; i++) {
+      TSQueryCapture capture = match.captures[i];
+      TSNode capturedNode = capture.node;
+
+      if (count >= capacity) {
+        capacity *= 2;
+        Node *newNodes = realloc(nodes, capacity * sizeof(Node));
+        if (!newNodes) {
+          perror("Failed to reallocate memory for nodes");
+          free(nodes);
+          ts_query_cursor_delete(cursor);
+          return NULL;
+        }
+        nodes = newNodes;
+      }
+
+      ts_node_poke(NULL, capturedNode, nodes + count);
+      count++;
+    }
+  }
+
+  *outCount = count;
+  ts_query_cursor_delete(cursor);
+
+  return nodes;
 }
