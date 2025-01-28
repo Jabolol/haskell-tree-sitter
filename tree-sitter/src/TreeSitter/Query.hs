@@ -19,8 +19,8 @@ import Foreign
 import Foreign.C
 import TreeSitter.Cursor
 import TreeSitter.Language
-import TreeSitter.Tree
 import TreeSitter.Node
+import TreeSitter.Tree
 
 -- | A tree-sitter query for pattern matching in syntax trees.
 --
@@ -43,7 +43,7 @@ withFQuery lang cstr size action = do
 -- | Execute a query and process the matched nodes with a callback function.
 -- The matched nodes array is automatically freed after the callback is executed.
 withQueryMatches :: Ptr Tree -> Ptr Query -> (Ptr Node -> Word32 -> IO a) -> IO a
-withQueryMatches tree query action = alloca $ \matchCountPtr -> 
+withQueryMatches tree query action = alloca $ \matchCountPtr ->
   Exc.bracket
     (ts_query_matches_to_nodes tree query matchCountPtr)
     free
