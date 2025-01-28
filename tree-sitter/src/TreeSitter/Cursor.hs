@@ -1,6 +1,7 @@
 module TreeSitter.Cursor
 ( Cursor
 , withCursor
+, withFCursor
 , sizeOfCursor
 , ts_tree_cursor_new_p
 , ts_tree_cursor_delete
@@ -18,9 +19,8 @@ module TreeSitter.Cursor
 import Control.Exception as Exc
 import Data.Int
 import Data.Word
+import Foreign
 import Foreign.C
-import Foreign.Marshal.Alloc
-import Foreign.Ptr
 import TreeSitter.Node
 
 -- | A cursor for traversing a tree.
@@ -33,6 +33,12 @@ withCursor rootPtr action = allocaBytes sizeOfCursor $ \ cursor -> Exc.bracket
   (cursor <$ ts_tree_cursor_new_p rootPtr cursor)
   ts_tree_cursor_delete
   action
+
+withFCursor :: Ptr TSNode -> (ForeignPtr Cursor -> IO a) -> IO a
+withFCursor rootPtr action = allocaBytes sizeOfCursor $ \ cursor -> do
+  ts_tree_cursor_new_p rootPtr cursor
+  fPtr <- newForeignPtr p_ts_tree_cursor_delete cursor
+  action fPtr
 
 -- | The size of a 'Cursor' in bytes. The tests verify that this value is the same as @sizeof(TSTreeCursor)@.
 sizeOfCursor :: Int
@@ -52,3 +58,5 @@ foreign import ccall unsafe "ts_tree_cursor_goto_first_child" ts_tree_cursor_got
 foreign import ccall unsafe "ts_tree_cursor_goto_first_child_for_byte" ts_tree_cursor_goto_first_child_for_byte :: Ptr Cursor -> Word32 -> IO Int64
 
 foreign import ccall unsafe "src/bridge.c ts_tree_cursor_copy_child_nodes" ts_tree_cursor_copy_child_nodes :: Ptr Cursor -> Ptr Node -> IO Word32
+
+foreign import ccall "&ts_tree_cursor_delete" p_ts_tree_cursor_delete :: FunPtr (Ptr Cursor -> IO ())

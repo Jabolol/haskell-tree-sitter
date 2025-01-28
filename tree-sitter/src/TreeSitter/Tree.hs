@@ -3,6 +3,7 @@ module TreeSitter.Tree
 ( Tree
 , TSInputEdit(..)
 , withRootNode
+, withFRootNode
 , ts_tree_edit
 , ts_tree_delete
 , ts_tree_root_node_p
@@ -19,6 +20,13 @@ withRootNode :: Ptr Tree -> (Ptr Node -> IO a) -> IO a
 withRootNode tree action = alloca $ \ ptr -> do
   ts_tree_root_node_p tree ptr
   action ptr
+
+withFRootNode :: Ptr Tree -> (ForeignPtr Node -> IO a) -> IO a
+withFRootNode tree action =
+  alloca $ \outPtr -> do
+    ts_tree_root_node_p tree outPtr
+    fPtr <- newForeignPtr_ outPtr
+    action fPtr
 
 -- | Locational info used for to adjust the source ranges of a 'Tree'\'s nodes.
 --   This record dirrectly corresponds to the C struct of the same name.
