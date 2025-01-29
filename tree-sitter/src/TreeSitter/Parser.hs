@@ -11,6 +11,8 @@ module TreeSitter.Parser
     ts_parser_timeout_micros,
     ts_parser_set_timeout_micros,
     ts_parser_log_to_stderr,
+    p_ts_parser_delete,
+    p_ts_tree_delete,
   )
 where
 
