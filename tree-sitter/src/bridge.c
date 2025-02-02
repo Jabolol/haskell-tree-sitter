@@ -233,3 +233,17 @@ Node *ts_query_matches_to_nodes(TSTree *tree, TSQuery *query, size_t *outCount)
 
     return nodes;
 }
+
+char *ts_tree_to_string(const char *src, TSLanguage *lang)
+{
+    TSParser *parser = ts_parser_new();
+    ts_parser_set_language(parser, lang);
+
+    TSTree *tree = ts_parser_parse_string(parser, NULL, src, strlen(src));
+    TSNode root = ts_tree_root_node(tree);
+    char *tree_str = ts_node_string(root);
+
+    ts_parser_delete(parser);
+    ts_tree_delete(tree);
+    return tree_str;
+}

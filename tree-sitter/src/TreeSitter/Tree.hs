@@ -8,11 +8,14 @@ module TreeSitter.Tree
     ts_tree_edit,
     ts_tree_delete,
     ts_tree_root_node_p,
+    ts_tree_to_string,
   )
 where
 
 import Foreign
+import Foreign.C
 import GHC.Generics
+import TreeSitter.Language
 import TreeSitter.Node
 
 -- | This type is uninhabited and used only for type safety within 'Ptr' values.
@@ -68,3 +71,5 @@ foreign import ccall safe "ts_tree_edit" ts_tree_edit :: Ptr Tree -> Ptr TSInput
 foreign import ccall safe "ts_tree_delete" ts_tree_delete :: Ptr Tree -> IO ()
 
 foreign import ccall unsafe "src/bridge.c ts_tree_root_node_p" ts_tree_root_node_p :: Ptr Tree -> Ptr Node -> IO ()
+
+foreign import ccall unsafe "src/bridge.c ts_tree_to_string" ts_tree_to_string :: CString -> Ptr Language -> IO CString
