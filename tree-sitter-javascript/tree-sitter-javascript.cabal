@@ -10,7 +10,7 @@ maintainer:          vera@github.com
 copyright:           2019 GitHub
 category:            Tree-sitter, JavaScript
 build-type:          Simple
-data-files:          vendor/tree-sitter-javascript/javascript/src/node-types.json
+data-files:          vendor/tree-sitter-javascript/src/node-types.json
                    , vendor/tree-sitter-javascript/test/corpus/*.txt
 extra-doc-files:    ChangeLog.md
 
@@ -47,12 +47,11 @@ library
   other-modules:       Paths_tree_sitter_javascript
   build-depends:       base >= 4.12 && < 5
                      , tree-sitter
-  include-dirs:        vendor/tree-sitter-javascript/javascript/src
-                       vendor/tree-sitter-javascript/common
+  include-dirs:        vendor/tree-sitter-javascript/src
   install-includes:    tree_sitter/parser.h
                        scanner.h
-  c-sources:           vendor/tree-sitter-javascript/javascript/src/parser.c
-                     , vendor/tree-sitter-javascript/javascript/src/scanner.c
+  c-sources:           vendor/tree-sitter-javascript/src/parser.c
+                     , vendor/tree-sitter-javascript/src/scanner.c
 
 source-repository head
   type:     git
